@@ -4,6 +4,10 @@
       <span>Новых: {{ newTicketsCount }}</span>
       <span>Срочных: {{ highPriorityCount }}</span>
     </div>
+
+    <!-- Добавляем форму -->
+    <TicketForm />
+
     <h1>Тикеты поддержки</h1>
     <div v-if="loading">Загрузка...</div>
     <div v-else-if="tickets.length === 0">Нет тикетов</div>
@@ -27,6 +31,7 @@
 <script setup lang="ts">
 import { useTicketStore } from '@/stores/tickets'
 import { computed } from 'vue'
+import TicketForm from './TicketForm.vue'
 
 const store = useTicketStore()
 
