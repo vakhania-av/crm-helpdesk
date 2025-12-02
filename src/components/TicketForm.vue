@@ -1,79 +1,105 @@
 <template>
   <div class="ticket-form">
     <h2>Создать новый тикет</h2>
-    <form @submit.prevent="handleSubmit">
-      <div class="form-group">
-        <label for="title">Заголовок *</label>
-        <input
-          id="title"
-          v-model="form.title"
-          type="text"
-          class="input"
-          placeholder="Кратко опишите проблему"
-          :class="{ error: errors.title }"
-        />
-        <span v-if="errors.title" class="error-text">{{ errors.title }}</span>
-      </div>
 
-      <div class="form-group">
-        <label for="description">Описание</label>
-        <textarea
-          id="description"
-          v-model="form.description"
-          class="textarea"
-          placeholder="Детали, шаги для воспроизведения..."
-        >
-        </textarea>
-      </div>
+    <!-- Категория -->
+    <div class="form-group">
+      <label for="category">Категория проблемы *</label>
+      <select
+        id="category"
+        v-model="slaStore.category"
+        class="input"
+        :class="{ error: !slaStore.isCategoryValid }"
+      >
+        <option value="">– Выберите –</option>
+        <option v-for="(label, key) in categoryLabels" :key="key" :value="key">
+          {{ label }}
+        </option>
+      </select>
+      <span v-if="!slaStore.isCategoryValid" class="error-text">Выберите категорию!</span>
+    </div>
 
-      <div class="form-group">
-        <label for="priority">Приоритет</label>
-        <select id="priority" v-model="form.priority" class="select">
-          <option value="low">Низкий</option>
-          <option value="medium">Средний</option>
-          <option value="high">Высокий</option>
-        </select>
-      </div>
+    <!-- Заголовок -->
+    <div class="form-group">
+      <label for="title">Заголовок *</label>
+      <input
+        id="title"
+        v-model="form.title"
+        type="text"
+        class="input"
+        placeholder="Кратко опишите проблему"
+        :class="{ error: !isTitleValid }"
+      />
+      <span v-if="!isTitleValid" class="error-text">Заголовок обязателен!</span>
+    </div>
 
-      <button type="submit" class="btn" :disabled="isSubmitting">
-        {{ isSubmitting ? 'Отправка' : 'Создать тикет' }}
-      </button>
-    </form>
+    <!-- Описание -->
+    <div class="form-group">
+      <label for="description">Описание</label>
+      <textarea
+        id="description"
+        v-model="form.description"
+        class="textarea"
+        placeholder="Детали, шаги для воспроизведения..."
+      >
+      </textarea>
+    </div>
+
+    <!-- Приоритет -->
+    <div class="form-group">
+      <label for="priority">Приоритет *</label>
+      <select
+        id="priority"
+        v-model="slaStore.priority"
+        class="select"
+        :class="{ error: !slaStore.isPriorityValid }"
+      >
+        <option value="">- Выберите -</option>
+        <option v-for="(label, key) in priorityLabels" :key="key" :value="key">
+          {{ label }}
+        </option>
+      </select>
+      <span v-if="!slaStore.isPriorityValid" class="error-text">Выберите приоритет!</span>
+    </div>
+
+    <!-- SLA Preview -->
+    <div v-if="slaStore.estimatedHours" class="sla-preview">
+      <p>⏳ <strong>Ожидаемое время решения:</strong> {{ slaStore.estimatedHours }} ч</p>
+      <p>📅 <strong>Примерная дата завершения:</strong> {{ slaStore.formattedDueDate }}</p>
+    </div>
+
+    <button
+      type="submit"
+      class="btn"
+      :disabled="isSubmitting || !isFormValid"
+      @click="handleSubmit"
+    >
+      {{ isSubmitting ? 'Отправка' : 'Создать тикет' }}
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { DEFAULT_TIMEOUT, categoryLabels, priorityLabels } from '@/const'
+import { useSlaStore } from '@/stores/slaStore'
 import { useTicketStore } from '@/stores/tickets'
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 
-const store = useTicketStore()
+const ticketStore = useTicketStore()
+const slaStore = useSlaStore()
 
+// Только заголовок и описание - всё остальное в SLA-сторе
 const form = reactive({
   title: '',
   description: '',
-  priority: 'medium' as 'low' | 'medium' | 'high',
-})
-
-const errors = reactive({
-  title: '',
 })
 
 const isSubmitting = ref(false)
-
-const validate = () => {
-  errors.title = ''
-
-  if (!form.title.trim()) {
-    errors.title = 'Заголовок обязателен!'
-
-    return false
-  }
-
-  return true
-}
+const isTitleValid = computed(() => form.title.trim() !== '')
+const isFormValid = computed(() => isTitleValid.value && slaStore.isFormValid)
 
 const handleSubmit = () => {
-  if (!validate) {
+  if (!isFormValid.value) {
     return
   }
 
@@ -81,19 +107,22 @@ const handleSubmit = () => {
 
   // Имитируем задержку (позже заменим на API-запрос)
   setTimeout(() => {
-    store.addTicket({
+    ticketStore.addTicket({
       title: form.title,
       description: form.description,
-      priority: form.priority,
       status: 'new',
+      priority: slaStore.priority,
+      category: slaStore.category,
     })
 
     // Сброс формы
     form.title = ''
     form.description = ''
-    form.priority = 'medium'
+
+    slaStore.resetForm()
+
     isSubmitting.value = false
-  }, 300)
+  }, DEFAULT_TIMEOUT)
 }
 </script>
 
@@ -137,17 +166,6 @@ export default { name: 'TicketForm' }
   resize: vertical;
 }
 
-.error {
-  border-color: #e53935 !important;
-}
-
-.error-text {
-  background: #e53935;
-  font-size: 14px;
-  margin-top: 4px;
-  display: block;
-}
-
 .btn {
   background: #1976d2;
   color: white;
@@ -161,5 +179,25 @@ export default { name: 'TicketForm' }
 .btn:disabled {
   background: #aaa;
   cursor: not-allowed;
+}
+
+.sla-preview {
+  margin: 16px 0;
+  padding: 12px;
+  background: #e3f2fd;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.error-text {
+  color: #e53935;
+  font-size: 14px;
+  margin-top: 4px;
+  display: block;
+}
+
+.error {
+  border-color: #e53935 !important;
 }
 </style>
