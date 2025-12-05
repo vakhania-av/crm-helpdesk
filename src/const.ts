@@ -44,3 +44,5 @@ export const filtersPriority = {
 } as const
 
 export const DEFAULT_TIMEOUT = 300
+
+export const DEFAULT_WINDOW_WIDTH = 768

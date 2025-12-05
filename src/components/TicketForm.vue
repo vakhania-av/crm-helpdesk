@@ -200,4 +200,39 @@ export default { name: 'TicketForm' }
 .error {
   border-color: #e53935 !important;
 }
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .ticket-form {
+    padding: 16px;
+    margin: 16px 0;
+  }
+
+  .form-group label {
+    font-size: 14px;
+  }
+
+  .input,
+  .textarea,
+  .select {
+    font-size: 16px; /* Предотвращает zoom на iOS */
+    padding: 12px;
+  }
+
+  .textarea {
+    min-height: 80px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .sla-preview {
+    font-size: 13px;
+    padding: 10px;
+  }
+}
 </style>

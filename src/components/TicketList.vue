@@ -14,21 +14,25 @@
     <!-- Панель фильтрации -->
     <div v-else class="tickets">
       <TicketFilterPanel />
-      <div v-for="ticket in ticketStore.filteredTickets" :key="ticket.id" class="ticket">
-        <div class="ticket-header">
-          <span class="ticket-id">#{{ ticket.id }}</span>
-          <span class="ticket-priority" :class="`priority-${ticket.priority}`">
-            {{ ticket.priority }}
-          </span>
-        </div>
-        <h3>{{ ticket.title }}</h3>
-        <p v-if="ticket.description" class="description">{{ ticket.description }}</p>
-        <p class="ticket-status">{{ ticket.status }}</p>
-        <time>{{ formatDate(ticket.createdAt) }}</time>
+      <div class="ticket-wrapper">
+        <div v-for="ticket in ticketStore.filteredTickets" :key="ticket.id" class="ticket">
+          <div class="ticket-header">
+            <span class="ticket-id">#{{ ticket.id }}</span>
+            <span class="ticket-priority" :class="`priority-${ticket.priority}`">
+              {{ ticket.priority }}
+            </span>
+          </div>
+          <h3>{{ ticket.title }}</h3>
+          <p v-if="ticket.description" class="description">{{ ticket.description }}</p>
+          <p class="ticket-status">{{ ticket.status }}</p>
+          <time>{{ formatDate(ticket.createdAt) }}</time>
 
-        <div class="ticket-actions">
-          <button @click="startEdit(ticket)" class="btn btn-sm">✏️ Редактировать</button>
-          <button @click="handleDelete(ticket.id)" class="btn btn-sm btn-danger">🗑️ Удалить</button>
+          <div class="ticket-actions">
+            <button @click="startEdit(ticket)" class="btn btn-sm">✏️ Редактировать</button>
+            <button @click="handleDelete(ticket.id)" class="btn btn-sm btn-danger">
+              🗑️ Удалить
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -176,5 +180,38 @@ const handleDelete = (id: number) => {
 
 .btn-danger {
   background: #e53935;
+}
+
+@media (max-width: 768px) {
+  .ticket-wrapper {
+    margin-bottom: 12px;
+  }
+
+  .ticket {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .ticket-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .ticket-id,
+  .ticket-priority {
+    font-size: 12px;
+  }
+
+  .ticket-actions {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    width: 100%;
+    padding: 6px;
+    font-size: 14px;
+  }
 }
 </style>

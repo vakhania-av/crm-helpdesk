@@ -21,4 +21,11 @@ const chartStore = useChartStore()
   width: 100%;
   height: 300px;
 }
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 25opx;
+    margin-bottom: 16px;
+  }
+}
 </style>

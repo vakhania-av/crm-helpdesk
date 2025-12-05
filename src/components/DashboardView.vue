@@ -43,7 +43,7 @@ const highCount = computed(() => ticketStore.tickets.filter((t) => t.priority ==
 
 <style scoped>
 .dashboard {
-  padding: 20px;
+  padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -51,7 +51,7 @@ const highCount = computed(() => ticketStore.tickets.filter((t) => t.priority ==
 .charts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  gap: 24px;
   margin-bottom: 60px;
 }
 
@@ -78,5 +78,20 @@ const highCount = computed(() => ticketStore.tickets.filter((t) => t.priority ==
   font-weight: bold;
   margin: 0;
   color: #1976d2;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .charts {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+}
+
+/* Гарантируем, что график не вылезет за границы */
+:deep(.chart-container canvas),
+:deep(.chart-container svg) {
+  max-width: 100%;
+  display: block;
 }
 </style>
