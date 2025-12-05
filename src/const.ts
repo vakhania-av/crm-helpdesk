@@ -21,4 +21,26 @@ export const priorityLabels = {
   low: 'Низкий',
 } as const
 
+export const ticketStatuses = {
+  new: 'Новый',
+  in_progress: 'В работе',
+  resolved: 'Решён',
+  closed: 'Закрыт',
+} as const
+
+export const filterStatuses = {
+  all: 'Все',
+  new: 'Новые',
+  in_progress: 'В работе',
+  resolved: 'Решён',
+  closed: 'Закрыт',
+} as const
+
+export const filtersPriority = {
+  all: 'Все',
+  high: 'Высокий',
+  medium: 'Средний',
+  low: 'Низкий',
+} as const
+
 export const DEFAULT_TIMEOUT = 300

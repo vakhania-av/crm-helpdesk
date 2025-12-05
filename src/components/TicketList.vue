@@ -11,8 +11,10 @@
     <h1>Тикеты поддержки</h1>
     <div v-if="loading">Загрузка...</div>
     <div v-else-if="tickets.length === 0">Нет тикетов</div>
+    <!-- Панель фильтрации -->
     <div v-else class="tickets">
-      <div v-for="ticket in tickets" :key="ticket.id" class="ticket">
+      <TicketFilterPanel />
+      <div v-for="ticket in ticketStore.filteredTickets" :key="ticket.id" class="ticket">
         <div class="ticket-header">
           <span class="ticket-id">#{{ ticket.id }}</span>
           <span class="ticket-priority" :class="`priority-${ticket.priority}`">
@@ -23,26 +25,60 @@
         <p v-if="ticket.description" class="description">{{ ticket.description }}</p>
         <p class="ticket-status">{{ ticket.status }}</p>
         <time>{{ formatDate(ticket.createdAt) }}</time>
+
+        <div class="ticket-actions">
+          <button @click="startEdit(ticket)" class="btn btn-sm">✏️ Редактировать</button>
+          <button @click="handleDelete(ticket.id)" class="btn btn-sm btn-danger">🗑️ Удалить</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <TicketEditForm
+    v-if="ticketStore.editingTicket"
+    :ticket="ticketStore.editingTicket"
+    @save="handleSave"
+    @cancel="ticketStore.editingTicket = null"
+  />
 </template>
 
 <script setup lang="ts">
 import { useTicketStore } from '@/stores/tickets'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import TicketForm from './TicketForm.vue'
+import type { ITicket } from '@/types/ticket'
+import TicketEditForm from './TicketEditForm.vue'
+import TicketFilterPanel from './TicketFilterPanel.vue'
 
-const store = useTicketStore()
+const ticketStore = useTicketStore()
+
+onMounted(() => {
+  ticketStore.loadTickets()
+})
 
 // Делаем данные реактивными
-const tickets = computed(() => store.tickets)
-const loading = computed(() => store.loading)
-const highPriorityCount = computed(() => store.highPriorityCount)
-const newTicketsCount = computed(() => store.newTicketsCount)
+const tickets = computed(() => ticketStore.tickets)
+const loading = computed(() => ticketStore.loading)
+const highPriorityCount = computed(() => ticketStore.highPriorityCount)
+const newTicketsCount = computed(() => ticketStore.newTicketsCount)
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleString('ru-RU')
+}
+
+const startEdit = (ticket: ITicket) => {
+  ticketStore.editingTicket = { ...ticket }
+}
+
+const handleSave = async (updates: Partial<ITicket>) => {
+  if (ticketStore.editingTicket) {
+    await ticketStore.updateTicket(ticketStore.editingTicket.id, updates)
+    ticketStore.editingTicket = null
+  }
+}
+
+const handleDelete = (id: number) => {
+  ticketStore.deleteTicket(id)
 }
 </script>
 
@@ -109,5 +145,36 @@ function formatDate(dateStr: string) {
   color: #666;
   font-style: italic;
   margin: 8px 0;
+}
+
+.ticket-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s;
+}
+
+.btn:hover {
+  background: #ccc;
+  transform: translateY(-2px);
+}
+
+.btn-sm {
+  font-size: 14px;
+}
+
+.btn-danger {
+  background: #e53935;
 }
 </style>
