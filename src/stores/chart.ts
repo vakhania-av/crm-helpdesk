@@ -1,5 +1,4 @@
 import type { ITicket } from '@/types/ticket'
-import { plugins } from 'chart.js'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
