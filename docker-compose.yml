@@ -1,0 +1,28 @@
+#docker-compose.yml
+version: '3.8'
+
+services:
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: helpdesk
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+  php:
+    image: webdevops/php-nginx:8.2
+    depends_on:
+      - database
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    environment:
+      WEB_DOCUMENT_ROOT: /app/public
+    ports:
+      - "8000:80"
+volumes:
+  db_data:

@@ -1,0 +1,7 @@
+/node_modules
+/backend/vendor
+/backend/.env
+/backend/var/
+/backend/public/bundles/
+.DS_Store
+npm-debug.log*
